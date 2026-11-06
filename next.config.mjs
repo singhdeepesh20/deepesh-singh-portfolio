@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  devIndicators: false,
   // ── Compiler optimisations ────────────────────────────────────────
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
