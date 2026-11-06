@@ -60,9 +60,8 @@ export default function RootLayout({ children }) {
       <body>
         <TrackVisit />
         {children}
-        <Analytics />
+        {process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true" && <Analytics />}
       </body>
     </html>
   );
 }
-

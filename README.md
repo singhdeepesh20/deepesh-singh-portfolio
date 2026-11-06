@@ -13,7 +13,7 @@ The app runs at `http://localhost:3000` by default. Use `npm run lint` and `npm 
 
 ## Verified content
 
-The site presents Niramaya AI as its flagship case study using implementation and design details documented in the public repository. Deployment, clinical validation, and retrieval benchmark results are not claimed.
+The homepage presents Niramaya AI as its flagship project. The technical case study is available at `/projects/niramaya-ai`; it distinguishes repository implementation from unverified deployment and external services. No clinical validation, user outcomes, or retrieval benchmark results are claimed. Project cards are configured in `src/lib/projects.js`.
 
 ## Profile configuration
 
@@ -25,7 +25,7 @@ Contact email delivery requires `RESEND_API_KEY`, `RESEND_FROM`, and `ADMIN_EMAI
 
 ## Portfolio assistant
 
-`/ask` and the homepage input use a portfolio assistant backed by curated public notes. Without external credentials, the server performs deterministic local keyword retrieval and returns relevant source passages. When configured, it embeds questions through an OpenAI-compatible embeddings endpoint, retrieves only passages marked `scope: portfolio` from Qdrant, then streams a bounded answer from an OpenAI-compatible chat-completions endpoint. Server credentials are never sent to the browser.
+`/ask` and the homepage input use a portfolio assistant backed by curated public notes. Without external credentials, the server performs deterministic local keyword retrieval and returns relevant source passages. If the API cannot be reached, the browser uses the same local notes. Unsupported questions receive the explicit verified-information fallback. When configured, the server embeds questions through an OpenAI-compatible embeddings endpoint, retrieves only passages marked `scope: portfolio` from Qdrant, and streams a bounded answer from an OpenAI-compatible chat-completions endpoint. Server credentials are never sent to the browser.
 
 1. Copy `.env.example` to `.env`. Fill in `LLM_API_KEY`, `LLM_MODEL`, and `EMBEDDING_MODEL`. For local `npm run dev`, use `QDRANT_URL=http://localhost:6333`; Compose overrides it to the Qdrant service hostname. Set `LLM_BASE_URL` for a compatible provider other than OpenAI.
 2. Start Qdrant locally with `docker compose up -d qdrant`, or set `QDRANT_URL` to an independently managed Qdrant service.

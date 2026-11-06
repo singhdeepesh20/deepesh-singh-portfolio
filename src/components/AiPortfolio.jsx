@@ -2,14 +2,17 @@
 
 import { useEffect } from "react";
 import { PROFILE } from "@/lib/profile";
+import { PROJECTS } from "@/lib/projects";
+import { ARTICLES } from "@/app/journal/articles";
 import AvatarIllustration from "./AvatarIllustration";
+import CapabilityMap from "./CapabilityMap";
 import PortfolioPrompt from "./PortfolioPrompt";
 
 const NAV_LINKS = [
-  ["Me", "about"],
+  ["About", "about"],
   ["Projects", "work"],
-  ["Skills", "skills"],
-  ["Engineering", "engineering"],
+  ["Expertise", "skills"],
+  ["Journal", "journal"],
   ["Contact", "contact"],
 ];
 
@@ -55,23 +58,25 @@ export default function AiPortfolio() {
       <section className="hero-shell" id="top" data-nav-section>
         <div className="hero-inner">
           <div className="hero-copy">
-            <div className="availability-line">Available for thoughtful problems</div>
+            <div className="availability-line">Seeking AI Engineering / AI Backend Engineering internships — 2027</div>
             <p className="eyebrow">HEY, I&apos;M DEEPESH <span>👋</span></p>
             <h1>
               AI Product
               <span className="serif-italic">Engineer</span>
             </h1>
             <p className="lead-copy">
-              I build intelligent products with <span className="highlight">RAG</span>, AI agents, and
-              scalable backend systems.
+              I build intelligent products with <span className="highlight">retrieval-augmented generation</span>, AI agents, and reliable backend systems.
             </p>
             <p className="sub-copy">
-              Exploring the intersection of artificial intelligence, software engineering, and real-world problem solving.
+              Build systems that are useful, reliable, measurable, and understandable.
             </p>
 
             <div className="hero-actions">
-              <a className="primary-button" href="#work">Explore the work <span>↗</span></a>
-              <a className="secondary-button" href="#about">A little more about me <span>↓</span></a>
+              <a className="primary-button" href="#work">Explore Projects <span>↗</span></a>
+              {PROFILE.resume && <a className="secondary-button" href={PROFILE.resume} target="_blank" rel="noreferrer">Download Resume <span>↓</span></a>}
+              <a className="secondary-button" href={PROFILE.github} target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
+              <a className="secondary-button" href={PROFILE.linkedin} target="_blank" rel="noreferrer">LinkedIn <span>↗</span></a>
+              <a className="secondary-button" href={`mailto:${PROFILE.email}`}>Contact <span>↗</span></a>
             </div>
 
             <div className="assistant-inline" aria-label="Portfolio assistant panel">
@@ -137,134 +142,47 @@ export default function AiPortfolio() {
         <h2>One flagship. Many questions.</h2>
         <p className="section-lead">A closer look at the product thinking, systems, and trade-offs behind the work.</p>
 
-        <article className="project-card">
+        {PROJECTS.map((project) => <article className="project-card" key={project.id}>
           <div className="project-visual">
             <div className="project-orbit project-orbit-one" />
             <div className="project-orbit project-orbit-two" />
             <div className="project-mark">N</div>
             <div className="project-labels">
+              <span aria-label="Product illustration, not a screenshot">system illustration</span>
               <span>reports</span>
               <span>evidence</span>
-              <span>clarity</span>
             </div>
           </div>
 
           <div className="project-info">
             <div className="meta-row">
-              <span className="meta-tag">AI Healthcare · RAG · AI Backend</span>
-              <span className="meta-status">• Engineering prototype</span>
+              <span className="meta-tag">{project.category}</span>
+              <span className="meta-status">• {project.status}</span>
             </div>
-            <h3>Niramaya <span>AI</span></h3>
-            <p>
-              An intelligent medical document platform designed to transform scattered medical reports into searchable,
-              structured, and context-aware health records.
-            </p>
+            <h3>{project.title}</h3>
+            <p className="project-problem"><strong>Problem:</strong> {project.problem}</p>
+            <p>{project.description}</p>
 
             <div className="tech-stack">
-              {['Next.js', 'FastAPI', 'PostgreSQL', 'S3 / MinIO', 'Qdrant', 'RAG'].map((item) => (
+              {project.technologies.map((item) => (
                 <span key={item}>{item}</span>
               ))}
             </div>
 
             <div className="project-actions">
-              <a className="primary-button dark" href="https://github.com/singhdeepesh20/Niramaya-AI" target="_blank" rel="noreferrer">Read the repository <span>↗</span></a>
-              <a className="secondary-link" href="/work/niramaya-ai">Explore the system <span>↗</span></a>
+              <a className="primary-button dark" href={project.repositoryUrl} target="_blank" rel="noreferrer">GitHub repository <span>↗</span></a>
+              <a className="secondary-link" href={project.caseStudyUrl}>Read the case study <span>↗</span></a>
+              {project.demoUrl && <a className="secondary-link" href={project.demoUrl} target="_blank" rel="noreferrer">Live demo <span>↗</span></a>}
             </div>
 
-            <div className="transparency-note">
-              Verified from the public repository. Optional cloud services and live integrations are not presented as verified here.
+            <div className="transparency-note" aria-label="Project evidence">
+              {project.implementationStatus} Evidence: {project.evidence.join(" · ")}
             </div>
           </div>
-        </article>
+        </article>)}
       </section>
 
-      <section className="section-block architecture-block" id="skills" data-nav-section>
-        <div className="section-kicker">03 / UNDER THE HOOD</div>
-        <h2>Niramaya is less about <span className="serif-italic">magic.</span> More about boundaries.</h2>
-        <p className="section-lead right-offset">
-          Medical information deserves an architecture that knows what it can prove. This is the system view — implemented,
-          optional, and planned capabilities kept distinct.
-        </p>
-
-        <div className="architecture-layout">
-          <div className="arch-list">
-            {[
-              ['01', 'Next.js frontend', 'Interface'],
-              ['02', 'FastAPI backend', 'Orchestration'],
-              ['03', 'PostgreSQL', 'Canonical store'],
-              ['04', 'Object storage', 'Private bytes'],
-              ['05', 'Processing worker', 'Async reliability'],
-              ['06', 'Qdrant / retrieval', 'Semantic index'],
-              ['07', 'RAG orchestration', 'Evidence assembly'],
-            ].map(([index, label, hint]) => (
-              <button key={label} className="arch-item" type="button">
-                <span>{index}</span>
-                <strong>{label}</strong>
-                <small>{hint}</small>
-                <em>↗</em>
-              </button>
-            ))}
-          </div>
-
-          <div className="arch-detail">
-            <div className="detail-head">
-              <span>SELECTED COMPONENT</span>
-              <span>02</span>
-            </div>
-            <h3>FastAPI backend</h3>
-            <p>
-              Coordinates auth, document workflows, evidence retrieval, and safe response boundaries.
-            </p>
-            <div className="key-matrix">
-              <div><label>Input / Output</label><strong>Request → services</strong></div>
-              <div><label>Status</label><strong>Documented in repo</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="pipeline-wrap">
-          <div className="section-kicker pipeline-kicker">DOCUMENT PROCESSING PIPELINE</div>
-          <div className="pipeline-row">
-            {['Upload', 'Validate', 'Queue', 'Extract', 'OCR fallback', 'Chunk', 'Embed', 'Index'].map((step, index) => (
-              <div className="pipeline-step" key={step}>
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <strong>{step}</strong>
-                {index < 7 && <em>→</em>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section-block expertise-block" id="engineering" data-nav-section>
-        <div className="section-kicker">04 / TECHNICAL EXPERTISE</div>
-        <h2>A map of how I build.</h2>
-        <p className="section-lead">No progress bars. Just the systems, tools, and mental models I keep reaching for.</p>
-
-        <div className="expertise-grid">
-          {[
-            ['01', 'Programming & CS', 'Python · C++ · JavaScript · SQL · Data structures · OOP · Concurrency', 'programming'],
-            ['02', 'Machine Learning', 'PyTorch · Scikit-learn · Neural networks · Model training · Model evaluation', 'ml'],
-            ['03', 'LLM & Agents', 'LangChain · LangGraph · Tool calling · Structured outputs · Agent orchestration', 'agents'],
-            ['04', 'Retrieval Systems', 'RAG · Embeddings · Qdrant · FAISS · Reranking · Hybrid search', 'retrieval'],
-            ['05', 'Backend & Distributed', 'FastAPI · Node.js · REST APIs · Async processing · PostgreSQL · Redis', 'backend'],
-            ['06', 'AI Infrastructure', 'Docker · AWS · Model serving · Caching · CI/CD · Deployment', 'infra'],
-            ['07', 'Engineering Practice', 'Git · Linux · Testing · API docs · Observability · Security engineering', 'practice'],
-          ].map(([index, label, skillText, visual]) => (
-            <article className="expert-card" key={label}>
-              <div className="expert-head">
-                <span>{index}</span>
-                <span className="chevron">⌄</span>
-              </div>
-              <div className={`mini-visual ${visual}`} aria-hidden="true">
-                <span />
-              </div>
-              <h3>{label}</h3>
-              <p>{skillText}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      <CapabilityMap />
 
       <section className="philosophy-panel" id="philosophy" data-nav-section>
         <div className="section-kicker kicker-light">05 / ENGINEERING PHILOSOPHY</div>
@@ -294,14 +212,24 @@ export default function AiPortfolio() {
         </div>
       </section>
 
-      <section className="journal-panel" data-nav-section>
+      <section className="journal-panel" id="journal" data-nav-section aria-labelledby="journal-heading">
         <div className="section-kicker kicker-lavender">06 / ENGINEERING JOURNAL</div>
         <div className="journal-inner">
-          <h2>Notes from the <span className="serif-italic">workbench.</span></h2>
+          <h2 id="journal-heading">Notes from the <span className="serif-italic">workbench.</span></h2>
           <div className="journal-side">
-            <p>RAG engineering, AI agents, backend architecture, system design, machine learning, robotics.</p>
-            <div className="journal-tag">• Engineering notes and technical explorations coming soon.</div>
+            <p>Technical notes on retrieval, document processing, backend architecture, and system reliability.</p>
+            <div className="journal-tag">Educational explanations and repository-grounded notes; no invented personal milestones.</div>
           </div>
+        </div>
+        <div className="journal-articles">
+          {Object.entries(ARTICLES).map(([slug, article]) => (
+            <article className="journal-article" key={slug}>
+              <p className="journal-article-meta">{article.tags.join(" · ")} <span> / </span>{article.readingTime}</p>
+              <h3><a href={`/journal/${slug}`}>{article.title} <span aria-hidden="true">↗</span></a></h3>
+              <p>{article.description}</p>
+              <a className="journal-read-link" href={`/journal/${slug}`}>Read the note <span aria-hidden="true">↗</span></a>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -310,9 +238,7 @@ export default function AiPortfolio() {
         <div className="contact-inner">
           <div className="contact-copy">
             <h2>Have an <span className="serif-italic">interesting</span><br />problem to solve?</h2>
-            <p>
-              I&apos;m always interested in exploring intelligent systems, engineering ideas, and opportunities to build useful products.
-            </p>
+            <p>Seeking AI Engineering and AI Backend Engineering internship opportunities for 2027. I&apos;m interested in building useful, reliable intelligent products.</p>
           </div>
 
           <div className="contact-links-panel">
@@ -320,6 +246,7 @@ export default function AiPortfolio() {
             <div className="small-links">
               <a href={PROFILE.github} target="_blank" rel="noreferrer">GitHub</a>
               <a href={PROFILE.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+              {PROFILE.resume && <a href={PROFILE.resume} target="_blank" rel="noreferrer">Resume</a>}
             </div>
             <div className="mail-note">Opens your email client — no message is stored here.</div>
           </div>
@@ -329,7 +256,15 @@ export default function AiPortfolio() {
       <footer className="site-footer">
         <span>© 2026 Deepesh Singh</span>
         <span>Built with curiosity &amp; careful boundaries</span>
-        <a href="#top">Back to top ↑</a>
+        <nav aria-label="Footer navigation">
+          <a href="#work">Projects</a>
+          <a href="#journal">Journal</a>
+          <a href="#contact">Contact</a>
+          <a href={PROFILE.github} target="_blank" rel="noreferrer">GitHub</a>
+          <a href={PROFILE.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+          {PROFILE.resume && <a href={PROFILE.resume} target="_blank" rel="noreferrer">Resume</a>}
+          <a href="#top">Back to top ↑</a>
+        </nav>
       </footer>
     </main>
   );

@@ -7,13 +7,13 @@ export const PORTFOLIO_KNOWLEDGE = [
   },
   {
     title: "Niramaya AI project",
-    path: "/work/niramaya-ai",
+    path: "/projects/niramaya-ai",
     keywords: ["niramaya", "project", "healthcare", "medical", "documents", "reports", "health", "flagship"],
     text: "Niramaya AI is a medical document management and retrieval project. Its public repository contains document processing and retrieval code intended to help organize scattered medical reports into searchable health records. No live deployment, clinical validation, user outcomes, or performance benchmarks are claimed.",
   },
   {
     title: "Niramaya AI RAG architecture",
-    path: "/work/niramaya-ai#architecture",
+    path: "/projects/niramaya-ai#architecture",
     keywords: ["rag", "retrieval", "architecture", "qdrant", "embedding", "chunking", "vector", "search", "postgresql", "fastapi", "pipeline"],
     text: "The Niramaya AI repository includes FastAPI routes, PostgreSQL records, page-aware chunking, embeddings, optional Qdrant vector candidates, lexical retrieval, and owner checks in PostgreSQL. Retrieval quality has not been benchmarked, and external services are not verified as running.",
   },
@@ -44,6 +44,7 @@ export const PORTFOLIO_KNOWLEDGE = [
 ];
 
 const STOP_WORDS = new Set(["a", "an", "and", "are", "about", "do", "does", "for", "how", "i", "in", "is", "it", "me", "my", "of", "the", "to", "what", "with", "you", "your", "explain", "tell", "show"]);
+export const UNKNOWN_PORTFOLIO_ANSWER = "I don't have verified information about that yet. Please check the linked repository or contact Deepesh directly.";
 
 export function retrievePortfolioNotes(question, limit = 3) {
   const tokens = [...new Set((question.toLowerCase().match(/[a-z0-9+#-]+/g) || []).filter((token) => !STOP_WORDS.has(token) && token.length > 1))];
@@ -53,4 +54,16 @@ export function retrievePortfolioNotes(question, limit = 3) {
     const score = tokens.reduce((total, token) => total + (haystack.includes(token) ? (item.keywords.includes(token) ? 2 : 1) : 0), 0);
     return { ...item, score };
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+export function answerFromPortfolioNotes(question) {
+  const relevant = retrievePortfolioNotes(question, 3).filter((item) => item.score >= 2);
+  if (!relevant.length) {
+    return { answer: UNKNOWN_PORTFOLIO_ANSWER, sources: [], mode: "local-retrieval" };
+  }
+  return {
+    answer: relevant.map((item) => item.text).join("\n\n"),
+    sources: relevant.map(({ title, path }) => ({ title, path })),
+    mode: "local-retrieval",
+  };
 }

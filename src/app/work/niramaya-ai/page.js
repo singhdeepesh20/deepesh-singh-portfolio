@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ArchitectureExplorer from "./ArchitectureExplorer";
 import ProcessingLifecycle from "./ProcessingLifecycle";
+import RetrievalExplorer from "./RetrievalExplorer";
 
 const SYSTEMS = [
   {
@@ -155,6 +156,7 @@ const CAPABILITIES = [
 export const metadata = {
   title: "Niramaya AI — Engineering Case Study | Deepesh Singh",
   description: "A repository-grounded engineering case study of Niramaya AI's medical document processing and retrieval architecture.",
+  ...(process.env.NEXT_PUBLIC_SITE_URL ? { alternates: { canonical: new URL("/projects/niramaya-ai", process.env.NEXT_PUBLIC_SITE_URL).toString() } } : {}),
 };
 
 export default function NiramayaCaseStudy() {
@@ -180,6 +182,8 @@ export default function NiramayaCaseStudy() {
         <div><p className="section-kicker"><span>01</span> / PRODUCT PROBLEM</p><h2>Health information<br /><em>arrives in fragments.</em></h2></div>
         <div className="case-study-prose">
           <p>Niramaya is designed around a practical problem: medical information may be spread across uploaded reports, pages, tables, and lab values. The repository implements a pipeline to extract and organize this material, then retrieve relevant passages for a user’s question.</p>
+          <p><strong>Intended users:</strong> people who want a more organized way to review their own medical documents. The pain points are product assumptions, not findings from validated user research.</p>
+          <p><strong>Research status:</strong> no user interviews, clinical study, or outcome validation are claimed in this case study.</p>
           <p>This case study describes what is present in the public code and documentation. It does not claim a live deployment, clinical validation, measured user outcomes, or production use.</p>
         </div>
       </section>
@@ -205,14 +209,19 @@ export default function NiramayaCaseStudy() {
       </section>
 
       <section className="case-study-section">
-        <p className="section-kicker"><span>04</span> / DOCUMENT LIFECYCLE</p>
-        <h2>Processing has <em>visible states.</em></h2>
-        <p className="case-study-section-intro">Select a state to read its role. This summarizes the documented lifecycle; it does not imply a connected worker is running.</p>
+        <p className="section-kicker"><span>04</span> / DOCUMENT PROCESSING PIPELINE</p>
+        <h2>From upload <em>to index.</em></h2>
         <ProcessingLifecycle />
       </section>
 
+      <section className="case-study-section" id="retrieval">
+        <p className="section-kicker"><span>05</span> / RETRIEVAL & RAG</p>
+        <h2>Find the evidence <em>before answering.</em></h2>
+        <RetrievalExplorer />
+      </section>
+
       <section className="case-study-section">
-        <p className="section-kicker"><span>05</span> / SECURITY BOUNDARIES</p>
+        <p className="section-kicker"><span>06</span> / SECURITY BOUNDARIES</p>
         <h2>Identity stays <em>server controlled.</em></h2>
         <div className="security-principles">
           <article><strong>JWT identity</strong><p>Resolve the owner from a validated token on each protected request; never use a request supplied user_id as authority.</p></article>
@@ -224,7 +233,7 @@ export default function NiramayaCaseStudy() {
       </section>
 
       <section className="case-study-section decisions-section">
-        <p className="section-kicker"><span>06</span> / OBSERVED ENGINEERING DECISIONS</p>
+        <p className="section-kicker"><span>07</span> / OBSERVED ENGINEERING DECISIONS</p>
         <h2>Boundaries that shape <em>the system.</em></h2>
         <div className="decision-list">
           {DECISIONS.map((decision, index) => (
@@ -245,7 +254,7 @@ export default function NiramayaCaseStudy() {
       </section>
 
       <section className="case-study-section lab-section">
-        <p className="section-kicker"><span>07</span> / ENGINEERING LABORATORY</p>
+        <p className="section-kicker"><span>08</span> / ENGINEERING LABORATORY</p>
         <h2>Evidence from <em>the codebase.</em></h2>
         <p className="case-study-section-intro">These are inspectable implementation areas, not live dashboards or performance claims.</p>
         <div className="engineering-lab-list">
@@ -256,7 +265,7 @@ export default function NiramayaCaseStudy() {
       </section>
 
       <section className="case-study-section evaluation-section">
-        <p className="section-kicker"><span>08</span> / RETRIEVAL EVALUATION</p>
+        <p className="section-kicker"><span>09</span> / RETRIEVAL EVALUATION</p>
         <h2>Evaluation status: <em>not measured.</em></h2>
         <p className="case-study-section-intro">No labelled retrieval benchmark or answer-quality result is published. The following is a proposed experiment, not a completed evaluation.</p>
         <div className="evaluation-plan">
@@ -268,7 +277,7 @@ export default function NiramayaCaseStudy() {
       </section>
 
       <section className="case-study-section capabilities-section">
-        <p className="section-kicker"><span>09</span> / TECHNICAL CAPABILITIES</p>
+        <p className="section-kicker"><span>10</span> / TECHNICAL CAPABILITIES</p>
         <h2>Technology grounded <em>in evidence.</em></h2>
         <p className="case-study-section-intro">These levels describe project evidence, not mastery. Commit history identifies this repository under Deepesh’s account; a line-by-line personal contribution audit has not been completed.</p>
         <div className="capability-evidence-list">
@@ -277,10 +286,10 @@ export default function NiramayaCaseStudy() {
       </section>
 
       <section className="case-study-section case-limitations">
-        <p className="section-kicker"><span>10</span> / TESTING, LIMITATIONS & NEXT STEPS</p>
+        <p className="section-kicker"><span>11</span> / TESTING, LIMITATIONS & NEXT STEPS</p>
         <h2>What this review <em>can verify.</em></h2>
         <div className="case-study-prose">
-          <p>The Niramaya backend suite was run from an isolated checkout of the public repository: 93 tests passed with five upstream deprecation warnings. No AWS, Qdrant, or model-provider services were connected. The frontend repository documents ESLint, TypeScript, and production build checks, but has no unit or browser E2E runner.</p>
+          <p>A prior isolated review recorded 93 backend tests passing with five upstream deprecation warnings. That suite was not rerun as part of this portfolio update. No AWS, Qdrant, or model-provider services are connected in this portfolio environment. The Niramaya frontend repository documents lint, type, and build checks, but has no browser E2E runner.</p>
           <p>The latest public frontend CI run inspected for this update failed at the production dependency audit. A local fix for the vulnerable Next.js release and a missing build-time API URL was prepared in an isolated branch; it has not been pushed or rerun in public CI. The current repository CI status remains unresolved.</p>
           <p>The project documentation says answer generation is not clinically validated and marker filtering does not prove entailment. No live deployment, user outcomes, clinical review, or retrieval benchmark is claimed.</p>
         </div>

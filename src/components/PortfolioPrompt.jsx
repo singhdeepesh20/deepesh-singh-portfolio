@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { answerFromPortfolioNotes } from "@/lib/portfolio-knowledge";
 
-const SUGGESTIONS = ["What is Niramaya AI?", "Explain the RAG architecture", "What kind of role is Deepesh seeking?"];
+const SUGGESTIONS = ["What is Niramaya AI?", "Explain the RAG architecture", "How does document processing work?"];
 
 export default function PortfolioPrompt() {
   const [question, setQuestion] = useState("");
@@ -10,11 +11,12 @@ export default function PortfolioPrompt() {
   const [sources, setSources] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   async function submit(value) {
     const prompt = value.trim();
     if (!prompt || busy) return;
-    setBusy(true); setQuestion(""); setAnswer(""); setSources([]); setError("");
+    setBusy(true); setQuestion(""); setAnswer(""); setSources([]); setError(""); setNotice("");
     try {
       const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: prompt }) });
       const contentType = response.headers.get("content-type") || "";
@@ -23,7 +25,7 @@ export default function PortfolioPrompt() {
         if (!response.ok && response.status !== 503) throw new Error(result.error || "The assistant could not answer.");
         setAnswer(result.answer || result.error || "I couldn't find a relevant answer in my portfolio notes.");
         setSources(result.sources || []);
-        if (response.status === 503) setError("Using the local portfolio knowledge fallback.");
+        if (result.mode === "local-retrieval" || response.status === 503) setNotice("Answered from curated portfolio notes.");
         return;
       }
       if (!response.ok || !response.body) throw new Error("The assistant could not answer right now.");
@@ -41,11 +43,17 @@ export default function PortfolioPrompt() {
           if (data.sources) setSources(data.sources);
         }
       }
-    } catch (requestError) { setError(requestError.message || "The assistant could not connect. Please try again."); }
+    } catch {
+      const fallback = answerFromPortfolioNotes(prompt);
+      setAnswer(fallback.answer);
+      setSources(fallback.sources);
+      setNotice("Network unavailable — answered from curated portfolio notes.");
+    }
     finally { setBusy(false); }
   }
 
   return <div className="portfolio-prompt" id="assistant">
+    <p className="assistant-boundary">Answers are limited to verified portfolio information.</p>
     <form className="portfolio-prompt-form" onSubmit={(event) => { event.preventDefault(); submit(question); }}>
       <label className="sr-only" htmlFor="hero-portfolio-question">Ask about Deepesh’s work</label>
       <span className="prompt-spark" aria-hidden="true">✳</span>
@@ -53,7 +61,7 @@ export default function PortfolioPrompt() {
       <button type="submit" aria-label="Ask the portfolio assistant" disabled={busy || !question.trim()}>{busy ? "…" : "↗"}</button>
     </form>
     <div className="prompt-suggestions" aria-label="Suggested questions">{SUGGESTIONS.map((suggestion) => <button type="button" key={suggestion} disabled={busy} onClick={() => submit(suggestion)}>{suggestion}</button>)}</div>
-    {(answer || error) && <div className="prompt-answer" aria-live="polite"><div><span>{busy ? "THINKING" : "FROM THE PORTFOLIO"}</span>{error && <small>{error}</small>}</div>{answer && <p>{answer}</p>}{sources.length > 0 && <nav aria-label="Answer sources">{sources.map((source) => <a key={`${source.title}-${source.path}`} href={source.path}>{source.title} ↗</a>)}</nav>}</div>}
+    {(answer || error) && <div className="prompt-answer" aria-live="polite"><div><span>{busy ? "THINKING" : "FROM THE PORTFOLIO"}</span>{notice && <small>{notice}</small>}{error && <small>{error}</small>}</div>{answer && <p>{answer}</p>}{sources.length > 0 && <nav aria-label="Answer sources">{sources.map((source) => <a key={`${source.title}-${source.path}`} href={source.path}>{source.title} ↗</a>)}</nav>}</div>}
     <a className="open-assistant" href="/ask">Open the full portfolio assistant ↗</a>
   </div>;
 }

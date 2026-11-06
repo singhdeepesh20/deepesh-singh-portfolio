@@ -3,7 +3,7 @@ export default function sitemap() {
   if (!base) return [];
   const routes = [
     ["/", "weekly", 1],
-    ["/work/niramaya-ai", "monthly", 0.9],
+    ["/projects/niramaya-ai", "monthly", 0.9],
     ["/ask", "monthly", 0.6],
     ["/journal/document-processing", "yearly", 0.6],
     ["/journal/user-scoped-retrieval", "yearly", 0.6],
