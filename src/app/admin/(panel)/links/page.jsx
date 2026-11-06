@@ -9,7 +9,7 @@ const SOCIAL_FIELDS = [
   { key: 'youtube',    label: 'YouTube',    placeholder: 'https://youtube.com/@yourchannel',   icon: YoutubeIcon },
   { key: 'behance',    label: 'Behance',    placeholder: 'https://behance.net/yourprofile',    icon: BehanceIcon },
   { key: 'dribbble',   label: 'Dribbble',   placeholder: 'https://dribbble.com/yourhandle',   icon: DribbbleIcon },
-  { key: 'whatsapp',   label: 'WhatsApp',   placeholder: 'https://wa.me/919999999999',        icon: WhatsappIcon },
+  { key: 'whatsapp',   label: 'WhatsApp',   placeholder: 'https://wa.me/your-number',         icon: WhatsappIcon },
 ];
 
 export default function LinksPage() {

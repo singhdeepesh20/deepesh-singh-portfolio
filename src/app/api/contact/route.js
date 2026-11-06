@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const DAILY_LIMIT = 3;
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
 
 function getIP(request) {
   return (
@@ -15,6 +17,10 @@ function getIP(request) {
 }
 
 export async function POST(request) {
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM || !process.env.ADMIN_EMAIL || !supabase) {
+    return NextResponse.json({ error: 'Contact service is not configured' }, { status: 503 });
+  }
+
   const { name, email, message } = await request.json();
 
   if (!name || !email || !message) {
@@ -47,20 +53,21 @@ export async function POST(request) {
     }
 
     // Send email
-    const { data, error: emailError } = await resend.emails.send({
-      from: 'Portfolio Contact <support@sarang-space.site>',
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { error: emailError } = await resend.emails.send({
+      from: process.env.RESEND_FROM,
       to: process.env.ADMIN_EMAIL,
       replyTo: email,
       subject: `New message from ${name}`,
       html: `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#0d0d0d;color:#fff;padding:32px;border-radius:12px">
-          <h2 style="color:#ff6b1a;margin:0 0 24px">New Contact Form Submission</h2>
+          <h2 style="color:#00e5cc;margin:0 0 24px">New Portfolio Contact</h2>
           <table style="width:100%;border-collapse:collapse">
-            <tr><td style="padding:8px 0;color:#999;width:80px">From</td><td style="padding:8px 0;color:#fff">${name}</td></tr>
-            <tr><td style="padding:8px 0;color:#999">Email</td><td style="padding:8px 0;color:#ff6b1a"><a href="mailto:${email}" style="color:#ff6b1a">${email}</a></td></tr>
+            <tr><td style="padding:8px 0;color:#999;width:80px">From</td><td style="padding:8px 0;color:#fff">${escapeHtml(name)}</td></tr>
+            <tr><td style="padding:8px 0;color:#999">Email</td><td style="padding:8px 0;color:#00e5cc"><a href="mailto:${escapeHtml(email)}" style="color:#00e5cc">${escapeHtml(email)}</a></td></tr>
           </table>
           <hr style="border:1px solid #222;margin:20px 0"/>
-          <p style="color:#ccc;line-height:1.7;white-space:pre-wrap">${message}</p>
+          <p style="color:#ccc;line-height:1.7;white-space:pre-wrap">${escapeHtml(message)}</p>
         </div>
       `,
     });

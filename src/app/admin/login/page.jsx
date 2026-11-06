@@ -31,7 +31,7 @@ export default function AdminLogin() {
     <div className="admin-cursor min-h-screen bg-[#080808] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <span className="text-[#ff6b1a] font-black text-3xl tracking-tight">Sarang</span>
+          <span className="text-[#00e5cc] font-black text-3xl tracking-tight">Deepesh</span>
           <p className="text-white/30 text-sm mt-2">Admin Panel</p>
         </div>
 
@@ -47,7 +47,7 @@ export default function AdminLogin() {
               placeholder="Password"
               required
               autoFocus
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-[#ff6b1a]/50 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-[#00e5cc]/50 transition-colors"
             />
 
             {error && (
@@ -57,7 +57,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#ff6b1a] text-black font-bold py-3 rounded-xl text-sm uppercase tracking-widest hover:bg-[#ff8c42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#00e5cc] text-black font-bold py-3 rounded-xl text-sm uppercase tracking-widest hover:bg-[#41f1df] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in…' : 'Sign In'}
             </button>

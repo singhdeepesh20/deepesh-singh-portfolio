@@ -1,18 +1,17 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import ContactPopup from "./ContactPopup";
+import { PROFILE } from "@/lib/profile";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const LINKS = [
-  { label: "Projects", href: "/projects" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "About", href: "/#about" },
+  { label: "Projects", href: "/#projects" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
@@ -20,7 +19,6 @@ export default function Navbar() {
   const menuRef   = useRef(null);
   const pathname  = usePathname();
   const [open, setOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
 
   // Close menu on route change
   useEffect(() => { setOpen(false); }, [pathname]);
@@ -82,21 +80,16 @@ export default function Navbar() {
         {/* Logo + back */}
         <div className="relative flex items-center gap-5">
           {pathname !== "/" && (
-            <Link href={getBackLink(pathname)} className="flex items-center gap-2 text-white/40 hover:text-[#ff6b1a] transition-colors duration-300 group">
+            <Link href={getBackLink(pathname)} className="flex items-center gap-2 text-white/40 hover:text-[#00e5cc] transition-colors duration-300 group">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="transition-transform duration-300 group-hover:-translate-x-1">
                 <path d="M11 14L6 9l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span className="text-[10px] tracking-[0.35em] uppercase font-medium">{getBackLabel(pathname)}</span>
             </Link>
           )}
-          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity duration-300">
-            <Image
-              src="/photo/logo navbar inverse.png"
-              alt="Sarang — Portfolio Designer & Creative Developer"
-              width={120} height={40}
-              className="h-9 w-auto"
-              priority
-            />
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
+            <span className="h-2 w-2 rounded-full bg-[#00e5cc]" />
+            <span className="text-xs font-semibold tracking-[0.2em] text-white">DEEPESH SINGH</span>
           </Link>
         </div>
 
@@ -106,21 +99,18 @@ export default function Navbar() {
             const active = pathname === href;
             return (
               <li key={href}>
-                <Link href={href} className={`px-4 py-2 transition-all duration-300 ${active ? "text-[#ff6b1a]" : "text-white/50 hover:text-white/80"}`}>
+                <Link href={href} className={`px-4 py-2 transition-all duration-300 ${active ? "text-[#00e5cc]" : "text-white/50 hover:text-white/80"}`}>
                   {label}
                 </Link>
               </li>
             );
           })}
           <li className="ml-2">
-            <button 
-              suppressHydrationWarning
-              onClick={() => setIsContactOpen(true)}
-              className="px-5 py-2 bg-[#ff6b1a] text-black font-bold rounded-full hover:bg-white hover:text-black transition-colors duration-300 flex items-center gap-2"
-            >
-              Start Now
-            </button>
+              <Link href="mailto:mr.deepesh.singh00@gmail.com" className="px-5 py-2 border border-[#00e5cc]/60 text-[#00e5cc] text-[10px] tracking-widest hover:bg-[#00e5cc] hover:text-black transition-colors duration-300">LET’S TALK</Link>
           </li>
+          <li><a href="https://github.com/singhdeepesh20" target="_blank" rel="noreferrer" className="px-3 py-2 text-white/60 hover:text-white">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/contactdeepesh" target="_blank" rel="noreferrer" className="px-3 py-2 text-white/60 hover:text-white">LinkedIn</a></li>
+          {PROFILE.resume && <li><a href={PROFILE.resume} target="_blank" rel="noreferrer" className="px-3 py-2 text-white/60 hover:text-white">Resume</a></li>}
         </ul>
 
         {/* Mobile hamburger */}
@@ -150,33 +140,23 @@ export default function Navbar() {
                   <Link
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`block text-4xl font-black tracking-tighter transition-colors duration-300 ${active ? "text-[#ff6b1a]" : "text-white/70 hover:text-white"}`}
+                    className={`block text-4xl font-black tracking-tighter transition-colors duration-300 ${active ? "text-[#00e5cc]" : "text-white/70 hover:text-white"}`}
                   >
                     {label}
                   </Link>
                 </li>
               );
             })}
-            <li className="mobile-nav-link mt-4 pt-4 border-t border-white/10 flex flex-col gap-6">
-               <button 
-                 suppressHydrationWarning
-                 onClick={() => {
-                   setOpen(false);
-                   setIsContactOpen(true);
-                 }}
-                 className="w-full py-4 bg-[#ff6b1a] text-black text-xl font-bold tracking-tight rounded-2xl hover:bg-white hover:text-black transition-colors duration-300"
-               >
-                 Start Now
-               </button>
-            </li>
+            <li className="mobile-nav-link mt-4 pt-4 border-t border-white/10"><a href="mailto:mr.deepesh.singh00@gmail.com" className="text-sm font-mono tracking-widest text-[#00e5cc]">LET’S TALK ↗</a></li>
+            <li className="mobile-nav-link"><a href="https://github.com/singhdeepesh20" target="_blank" rel="noreferrer" className="text-sm text-white/70">GitHub ↗</a></li>
+            <li className="mobile-nav-link"><a href="https://linkedin.com/in/contactdeepesh" target="_blank" rel="noreferrer" className="text-sm text-white/70">LinkedIn ↗</a></li>
+            {PROFILE.resume && <li className="mobile-nav-link"><a href={PROFILE.resume} target="_blank" rel="noreferrer" className="text-sm text-white/70">Resume ↗</a></li>}
           </ul>
           <div className="mobile-nav-link mt-16 text-[10px] text-white/20 tracking-[0.4em] uppercase">
-            Sarang · Portfolio
+            Deepesh Singh · AI Product Engineer
           </div>
         </div>
       )}
-      {/* Contact Popup */}
-      <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
     </>
   );
 }

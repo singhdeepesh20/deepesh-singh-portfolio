@@ -6,7 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ingest:portfolio": "node scripts/ingest-portfolio.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
