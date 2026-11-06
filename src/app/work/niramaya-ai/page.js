@@ -1,4 +1,6 @@
 import Link from "next/link";
+import ArchitectureExplorer from "./ArchitectureExplorer";
+import ProcessingLifecycle from "./ProcessingLifecycle";
 
 const SYSTEMS = [
   {
@@ -39,10 +41,115 @@ const SYSTEMS = [
 ];
 
 const DECISIONS = [
-  ["PostgreSQL remains the source of truth", "Qdrant results are candidate identifiers and are checked again against PostgreSQL ownership and document state."],
-  ["Retrieval can degrade gracefully", "Embedding or vector failures preserve stored chunks for lexical retrieval; semantic recall may be unavailable until reindexing."],
-  ["Document content is untrusted input", "The documented answer prompt says not to follow instructions found in uploaded report text and gives the model no tools."],
-  ["No evidence means no generated answer", "An empty retrieval result returns insufficient evidence and skips the model call."],
+  {
+    title: "Keep original files separate from derived records",
+    problem: "Uploaded bytes and extracted medical data have different lifecycles and access patterns.",
+    decision: "The storage adapter puts source bytes in private S3; PostgreSQL stores an object key alongside metadata, extracted pages, tables, findings, and processing state.",
+    tradeoff: "This separates source-file storage from queryable records, while making correct database-to-object cleanup important.",
+    status: "Implemented in repository · live S3 configuration unverified",
+    source: "app/storage/s3.py · app/documents/",
+  },
+  {
+    title: "Preserve provenance through extraction",
+    problem: "A normalized value alone loses where it came from and how it was parsed.",
+    decision: "The repository models page, source-line, extraction generation, method, warnings, rule version, and quality metadata for extracted findings.",
+    tradeoff: "Additional provenance improves traceability but does not prove that a heuristic parse is clinically correct.",
+    status: "Implemented in repository",
+    source: "app/health/models.py · docs/14-medical-data-extraction-rules.md",
+  },
+  {
+    title: "Chunk at page boundaries and retain overlap",
+    problem: "Large documents need smaller retrieval units, while arbitrary splits can lose useful local context.",
+    decision: "The chunker does not merge page boundaries; defaults are 1,200 characters per chunk and 160 characters of overlap. IDs include the document, generation, order, and content hash.",
+    tradeoff: "Page-local chunks preserve page provenance and overlap helps with context at cuts; retrieval quality has not been benchmarked.",
+    status: "Implemented in repository · defaults documented",
+    source: "app/health/chunking.py · docs/16-chunking-and-embeddings.md",
+  },
+  {
+    title: "Treat vector results as candidates, not authority",
+    problem: "A vector index must not decide which user's medical records can be read.",
+    decision: "The API derives the owner from the verified JWT and resolves returned Qdrant chunk IDs again through PostgreSQL owner, generation, and document-state filters.",
+    tradeoff: "This extra database check protects the authorization boundary, but retrieval latency and relevance still need measured evaluation.",
+    status: "Implemented in repository · service integration unverified",
+    source: "app/health/repository.py · docs/18-rag-retrieval-and-generation.md",
+  },
+  {
+    title: "Combine lexical and semantic candidates",
+    problem: "Exact terms and semantically similar wording can surface different useful passages.",
+    decision: "The documented retriever combines PostgreSQL full-text candidates with optional Qdrant candidates using reciprocal-rank fusion.",
+    tradeoff: "It has a lexical fallback when vector work fails; no learned reranker or published comparison benchmark exists.",
+    status: "Implemented in repository · quality not measured",
+    source: "app/health/repository.py · docs/ai/retrieval-and-citations.md",
+  },
+  {
+    title: "Return insufficient evidence when retrieval is empty",
+    problem: "A generative model can produce plausible answers even when no relevant record was found.",
+    decision: "The API returns an insufficient-evidence response and skips the model call if the authorized chunk set is empty.",
+    tradeoff: "This reduces unsupported answers from empty retrieval; it does not validate every claim in a generated response.",
+    status: "Implemented in repository · not clinically validated",
+    source: "app/health/router.py · app/health/assistant.py",
+  },
+  {
+    title: "Use FastAPI for typed service boundaries",
+    problem: "Document and health operations need validated request shapes and explicit authentication dependencies.",
+    decision: "The repository uses FastAPI routers with Pydantic request models and dependencies that resolve the active user.",
+    tradeoff: "Typed validation and generated API conventions help keep boundaries clear; the Python service still needs deployment, monitoring, and dependency management.",
+    status: "Implemented in repository · service runtime unverified",
+    source: "app/main.py · app/documents/router.py · app/health/router.py",
+  },
+  {
+    title: "Keep relational records authoritative in PostgreSQL",
+    problem: "Users, documents, processing jobs, provenance, and deletion state have relationships and transactional updates.",
+    decision: "PostgreSQL stores canonical application records; vector search results are checked against owner and document state there.",
+    tradeoff: "Relational constraints and transactions support lifecycle consistency, while vector indexing creates cross-store synchronization work.",
+    status: "Implemented in repository · database service unverified",
+    source: "app/health/models.py · app/documents/models.py · alembic/",
+  },
+  {
+    title: "Use retrieval to ground changing document knowledge",
+    problem: "Medical document content is user specific and can change as reports are added or removed.",
+    decision: "The project retrieves authorized passages at question time and supplies bounded evidence to an optional generation provider.",
+    tradeoff: "RAG keeps source passages available for citations and updates; it depends on extraction and retrieval quality and does not make answers clinically valid. Fine tuning may improve task behavior but would not replace per-user evidence access.",
+    status: "Implemented in repository · provider and answer quality unverified",
+    source: "app/health/repository.py · app/health/assistant.py",
+  },
+  {
+    title: "Move long document work to a durable job lifecycle",
+    problem: "PDF parsing, optional OCR, and indexing can take longer than a request should remain open.",
+    decision: "The repository records processing jobs and states so work can proceed separately from the upload request.",
+    tradeoff: "Async jobs improve request responsiveness and make progress explicit, while introducing worker availability, retry, and idempotency requirements. Kafka is an option, not a verified dependency.",
+    status: "Job model and lifecycle implemented · worker runtime unverified",
+    source: "app/documents/ · docs/15-document-state-machine.md",
+  },
+];
+
+const LABS = [
+  {
+    title: "Retrieval engineering",
+    body: "The code combines owner-filtered PostgreSQL full-text candidates with optional local embeddings and Qdrant vector candidates. Reciprocal-rank fusion selects bounded results, and PostgreSQL re-resolves vector IDs before excerpts are used.",
+    proof: "app/health/repository.py · app/health/chunking.py · app/health/embeddings.py",
+    status: "Code and tests present · no benchmark published",
+  },
+  {
+    title: "Backend and document lifecycle",
+    body: "Document APIs derive ownership from verified identity, store original objects through an S3 adapter, and record durable processing transitions and jobs in PostgreSQL. Extracted content carries generation and source provenance.",
+    proof: "app/documents/ · app/user/controller.py · app/storage/s3.py",
+    status: "Code and migrations present · cloud runtime unverified",
+  },
+  {
+    title: "Reliability and verification",
+    body: "The repository includes API, extraction, processing, authentication, isolation, and RAG tests. In this review, the backend suite passed against the isolated public-repository checkout. Frontend lint, type checking, and build do not replace browser E2E coverage.",
+    proof: "tests/ · docs/testing/ · .github/workflows/",
+    status: "93 backend tests passed here · frontend E2E runner not configured",
+  },
+];
+
+const CAPABILITIES = [
+  ["Hands-on · repository evidence", "Python and FastAPI · typed API and auth routes", "Implemented and tested in the public project repository"],
+  ["Hands-on · repository evidence", "PostgreSQL and SQLAlchemy · ownership-aware persistence", "Models, migrations, and retrieval queries are present"],
+  ["Hands-on · repository evidence", "Retrieval systems · chunking, embeddings, hybrid candidate fusion", "Code and backend tests are present; retrieval quality is unmeasured"],
+  ["Working knowledge · repository evidence", "Next.js, React, and TypeScript · frontend routes and API client", "Frontend source and static CI checks are present; browser E2E is not"],
+  ["Exploring · integration not verified", "Qdrant, local embedding models, S3, and model-provider operations", "Adapters and configuration exist; live service operation is unverified"],
 ];
 
 export const metadata = {
@@ -91,21 +198,94 @@ export default function NiramayaCaseStudy() {
         </div>
       </section>
 
+      <section className="case-study-section architecture-section" id="architecture">
+        <p className="section-kicker"><span>03</span> / INTERACTIVE SYSTEM ARCHITECTURE</p>
+        <h2>Follow the data <em>through the system.</em></h2>
+        <ArchitectureExplorer />
+      </section>
+
+      <section className="case-study-section">
+        <p className="section-kicker"><span>04</span> / DOCUMENT LIFECYCLE</p>
+        <h2>Processing has <em>visible states.</em></h2>
+        <p className="case-study-section-intro">Select a state to read its role. This summarizes the documented lifecycle; it does not imply a connected worker is running.</p>
+        <ProcessingLifecycle />
+      </section>
+
+      <section className="case-study-section">
+        <p className="section-kicker"><span>05</span> / SECURITY BOUNDARIES</p>
+        <h2>Identity stays <em>server controlled.</em></h2>
+        <div className="security-principles">
+          <article><strong>JWT identity</strong><p>Resolve the owner from a validated token on each protected request; never use a request supplied user_id as authority.</p></article>
+          <article><strong>Ownership checks</strong><p>Apply owner and document state filters to reads, downloads, retrieval candidates, citations, and deletion operations.</p></article>
+          <article><strong>Private source files</strong><p>Keep uploaded bytes in private object storage and keep credentials in server environment configuration.</p></article>
+          <article><strong>Deletion across stores</strong><p>Track cleanup of source objects, relational data, and vector points; keep failures retryable and exclude pending records from retrieval.</p></article>
+        </div>
+        <p className="security-caveat">These are implementation and design notes. No HIPAA or other compliance certification is claimed.</p>
+      </section>
+
       <section className="case-study-section decisions-section">
-        <p className="section-kicker"><span>03</span> / ENGINEERING BEHAVIOR</p>
+        <p className="section-kicker"><span>06</span> / OBSERVED ENGINEERING DECISIONS</p>
         <h2>Boundaries that shape <em>the system.</em></h2>
         <div className="decision-list">
-          {DECISIONS.map(([title, body], index) => <article key={title}><span>0{index + 1}</span><div><h3>{title}</h3><p>{body}</p></div></article>)}
+          {DECISIONS.map((decision, index) => (
+            <article key={decision.title}>
+              <span>0{index + 1}</span>
+              <div><h3>{decision.title}</h3>
+                <dl className="decision-evidence">
+                  <div><dt>Problem</dt><dd>{decision.problem}</dd></div>
+                  <div><dt>Observed implementation</dt><dd>{decision.decision}</dd></div>
+                  <div><dt>Trade-off</dt><dd>{decision.tradeoff}</dd></div>
+                  <div><dt>Status</dt><dd>{decision.status}</dd></div>
+                </dl>
+                <p className="decision-source">Source: {decision.source}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="case-study-section lab-section">
+        <p className="section-kicker"><span>07</span> / ENGINEERING LABORATORY</p>
+        <h2>Evidence from <em>the codebase.</em></h2>
+        <p className="case-study-section-intro">These are inspectable implementation areas, not live dashboards or performance claims.</p>
+        <div className="engineering-lab-list">
+          {LABS.map((lab, index) => <article key={lab.title}>
+            <span className="lab-number">0{index + 1}</span><div><h3>{lab.title}</h3><p>{lab.body}</p><code>{lab.proof}</code></div><span className="lab-status">{lab.status}</span>
+          </article>)}
+        </div>
+      </section>
+
+      <section className="case-study-section evaluation-section">
+        <p className="section-kicker"><span>08</span> / RETRIEVAL EVALUATION</p>
+        <h2>Evaluation status: <em>not measured.</em></h2>
+        <p className="case-study-section-intro">No labelled retrieval benchmark or answer-quality result is published. The following is a proposed experiment, not a completed evaluation.</p>
+        <div className="evaluation-plan">
+          <article><span>DATASET</span><p>Build a small set of synthetic, non-sensitive medical-style documents and roughly 50 labelled questions with relevant page/chunk IDs.</p></article>
+          <article><span>COMPARISON</span><p>Compare lexical-only, dense-only, and hybrid retrieval using the same corpus, filters, and top-k values.</p></article>
+          <article><span>METRICS</span><p>Report Recall@5, Recall@10, MRR, and NDCG@10 from a versioned script and raw result file.</p></article>
+          <article><span>LIMITS</span><p>Document how synthetic examples differ from real reports. Do not infer clinical safety or answer correctness from retrieval metrics alone.</p></article>
+        </div>
+      </section>
+
+      <section className="case-study-section capabilities-section">
+        <p className="section-kicker"><span>09</span> / TECHNICAL CAPABILITIES</p>
+        <h2>Technology grounded <em>in evidence.</em></h2>
+        <p className="case-study-section-intro">These levels describe project evidence, not mastery. Commit history identifies this repository under Deepesh’s account; a line-by-line personal contribution audit has not been completed.</p>
+        <div className="capability-evidence-list">
+          {CAPABILITIES.map(([level, topic, proof], index) => <article key={topic}><span>0{index + 1}</span><div><strong>{topic}</strong><p>{proof}</p></div><small>{level}</small></article>)}
         </div>
       </section>
 
       <section className="case-study-section case-limitations">
-        <p className="section-kicker"><span>04</span> / VALIDATION BOUNDARY</p>
+        <p className="section-kicker"><span>10</span> / TESTING, LIMITATIONS & NEXT STEPS</p>
         <h2>What this review <em>can verify.</em></h2>
         <div className="case-study-prose">
-          <p>The repository documents fallback behavior, ownership filtering, evidence limits, and implementation tests. This portfolio review did not run Niramaya’s test suite or connect to its AWS, Qdrant, or model-provider services. The latest public frontend CI run was failing at the production dependency audit; a local, unpushed fix was prepared separately.</p>
-          <p>No retrieval benchmark or labelled evaluation results are published here. The project documentation explicitly says the answer behavior is not clinically validated and that citation-marker filtering does not establish that every statement is supported.</p>
+          <p>The Niramaya backend suite was run from an isolated checkout of the public repository: 93 tests passed with five upstream deprecation warnings. No AWS, Qdrant, or model-provider services were connected. The frontend repository documents ESLint, TypeScript, and production build checks, but has no unit or browser E2E runner.</p>
+          <p>The latest public frontend CI run inspected for this update failed at the production dependency audit. A local fix for the vulnerable Next.js release and a missing build-time API URL was prepared in an isolated branch; it has not been pushed or rerun in public CI. The current repository CI status remains unresolved.</p>
+          <p>The project documentation says answer generation is not clinically validated and marker filtering does not prove entailment. No live deployment, user outcomes, clinical review, or retrieval benchmark is claimed.</p>
         </div>
+        <h3 className="future-heading">Proposed next improvements</h3>
+        <ul className="future-list"><li>Rerun public frontend CI after the isolated dependency/build fixes are reviewed and merged.</li><li>Implement the synthetic retrieval evaluation described above and publish reproducible raw results.</li><li>Run frontend browser and accessibility checks against a configured test API.</li><li>Verify deployed S3, Qdrant, and model-provider behavior before making runtime claims.</li></ul>
         <a className="button-primary" href="https://github.com/singhdeepesh20/Niramaya-AI" target="_blank" rel="noreferrer">REVIEW THE SOURCE <span>↗</span></a>
       </section>
 
