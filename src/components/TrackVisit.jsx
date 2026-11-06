@@ -7,6 +7,7 @@ export default function TrackVisit() {
 
   useEffect(() => {
     if (pathname?.startsWith('/admin')) return;
+    if (process.env.NEXT_PUBLIC_ANALYTICS_ENABLED !== 'true') return;
 
     const source = new URLSearchParams(window.location.search).get('source') || '';
 
