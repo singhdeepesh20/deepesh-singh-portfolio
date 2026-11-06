@@ -1,6 +1,12 @@
 export default function sitemap() {
   const base = process.env.NEXT_PUBLIC_SITE_URL;
   if (!base) return [];
-
-  return [{ url: new URL("/", base).toString(), changeFrequency: "monthly", priority: 1 }];
+  const routes = [
+    ["/", "weekly", 1],
+    ["/projects/niramaya-ai", "monthly", 0.9],
+    ["/ask", "monthly", 0.6],
+    ["/journal/document-processing", "yearly", 0.6],
+    ["/journal/user-scoped-retrieval", "yearly", 0.6],
+  ];
+  return routes.map(([path, changeFrequency, priority]) => ({ url: new URL(path, base).toString(), changeFrequency, priority }));
 }

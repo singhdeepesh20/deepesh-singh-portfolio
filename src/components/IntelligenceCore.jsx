@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-function makeParticles(count = 1200) {
+function makeParticles(count = 220) {
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i += 1) {
     const y = 1 - (i / (count - 1)) * 2;
@@ -23,9 +23,9 @@ function IntelligenceField({ reduceMotion }) {
   const connections = useMemo(() => {
     const points = [];
     const { positions } = particles;
-    for (let i = 0; i < 1200; i += 1) {
-      if (i % 7 !== 0) continue;
-      const j = (i + 19) % 1200;
+    const count = positions.length / 3;
+    for (let i = 0; i < count; i += 6) {
+      const j = (i + 13) % count;
       points.push(
         positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2],
         positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2],
@@ -58,26 +58,22 @@ function IntelligenceField({ reduceMotion }) {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[particles.positions, 3]} />
         </bufferGeometry>
-        <pointsMaterial color="#00f0d0" size={0.035} sizeAttenuation transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} />
+      <pointsMaterial color="#38e0cb" size={0.026} sizeAttenuation transparent opacity={0.78} depthWrite={false} blending={THREE.AdditiveBlending} />
       </points>
       <lineSegments geometry={connections}>
-        <lineBasicMaterial color="#38d9ff" transparent opacity={0.12} />
+        <lineBasicMaterial color="#76a9ff" transparent opacity={0.14} />
       </lineSegments>
       <mesh>
-        <icosahedronGeometry args={[1.08, 2]} />
-        <meshBasicMaterial color="#638bff" wireframe transparent opacity={0.13} />
+        <icosahedronGeometry args={[1.08, 1]} />
+        <meshBasicMaterial color="#76a9ff" wireframe transparent opacity={0.09} />
       </mesh>
       <mesh rotation={[0.8, 0.4, 0.2]}>
-        <torusGeometry args={[1.67, 0.002, 6, 180]} />
-        <meshBasicMaterial color="#00f0d0" transparent opacity={0.42} />
-      </mesh>
-      <mesh rotation={[-0.45, 0.15, 0.8]}>
-        <torusGeometry args={[1.88, 0.0015, 6, 180]} />
-        <meshBasicMaterial color="#638bff" transparent opacity={0.25} />
+        <torusGeometry args={[1.58, 0.0018, 4, 120]} />
+        <meshBasicMaterial color="#38e0cb" transparent opacity={0.24} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[0.25, 24, 24]} />
-        <meshBasicMaterial color="#00f0d0" transparent opacity={0.12} />
+        <sphereGeometry args={[0.18, 16, 16]} />
+        <meshBasicMaterial color="#38e0cb" transparent opacity={0.1} />
       </mesh>
     </group>
   );

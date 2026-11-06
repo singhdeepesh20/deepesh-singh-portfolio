@@ -1,14 +1,19 @@
 # Deepesh Singh — AI Product Engineer
 
-Deepesh Singh is a B.Tech Robotics student building toward AI Product Engineering.
+Deepesh Singh is a B.Tech Robotics student seeking AI Engineering and AI Backend Engineering internships for 2027. His interests include RAG, AI agents, and reliable backend systems.
 
 ## Portfolio implementation
 
-This portfolio uses Next.js App Router, React, JavaScript, Tailwind CSS, GSAP, Three.js, and React Three Fiber.
+This portfolio uses Next.js App Router and React. It includes a reusable project configuration, an interactive capability map, a technical journal, and a deterministic fallback for the portfolio assistant.
 
-## Concept
+## Niramaya AI
 
-Niramaya AI is an early concept for making personal health records easier to organize and search.
+Niramaya AI is a medical document processing and retrieval project. The public repository includes a Next.js frontend, FastAPI backend, PostgreSQL models and migrations, document processing, chunking, embeddings, and optional Qdrant retrieval. The portfolio case study separates repository implementation from unverified runtime services.
+
+Case study: /projects/niramaya-ai
+Source: https://github.com/singhdeepesh20/Niramaya-AI
+
+No live deployment, clinical validation, measured user outcomes, or retrieval benchmark results are claimed.
 
 ## Contact
 

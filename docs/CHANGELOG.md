@@ -1,5 +1,13 @@
 # Changelog
 
+## Engineering portfolio P0/P1 foundation
+
+- Reframed the homepage around engineering philosophy, contact paths, and the single repository-backed Niramaya AI project.
+- Added `/work/niramaya-ai` with an accessible architecture explorer grounded in public repository code and docs.
+- Added explicit limits for unverified deployment, runtime services, evaluation, and clinical outcomes; kept public evaluation content hidden.
+- Reduced the 3D core's particle load and tuned it to the portfolio's teal and blue palette.
+- Updated the legacy projects redirect and refreshed evidence and self-review notes.
+
 ## Portfolio evidence and contact cleanup
 
 - Added the supplied email, GitHub, and LinkedIn details across the navigation, hero, contact section, footer, and machine-readable site metadata. The resume is pending because `public/resume.pdf` is not present.
