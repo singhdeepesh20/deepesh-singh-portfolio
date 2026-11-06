@@ -1,0 +1,17 @@
+# Deepesh Singh — AI Product Engineer
+
+Deepesh Singh is a B.Tech Robotics student building toward AI Product Engineering.
+
+## Portfolio implementation
+
+This portfolio uses Next.js App Router, React, JavaScript, Tailwind CSS, GSAP, Three.js, and React Three Fiber.
+
+## Concept
+
+Niramaya AI is an early concept for making personal health records easier to organize and search.
+
+## Contact
+
+Email: mr.deepesh.singh00@gmail.com
+GitHub: https://github.com/singhdeepesh20
+LinkedIn: https://linkedin.com/in/contactdeepesh
