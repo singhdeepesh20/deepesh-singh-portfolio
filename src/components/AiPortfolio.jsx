@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 import { PROFILE } from "@/lib/profile";
 import { PROJECTS } from "@/lib/projects";
 import { ARTICLES } from "@/app/journal/articles";
@@ -32,7 +33,24 @@ export default function AiPortfolio() {
     }, { rootMargin: "-25% 0px -60% 0px" });
 
     sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+
+    const graph = document.querySelector(".about-network-graph");
+    const graphObserver = graph
+      ? new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          currentObserver.unobserve(entry.target);
+        });
+      }, { threshold: 0.35 })
+      : null;
+
+    if (graph && graphObserver) graphObserver.observe(graph);
+
+    return () => {
+      observer.disconnect();
+      graphObserver?.disconnect();
+    };
   }, []);
 
   return (
@@ -105,19 +123,19 @@ export default function AiPortfolio() {
         <div className="about-split">
           <div className="about-text">
             <p>
-              I&apos;m a Robotics engineering student focused on building intelligent software products.
+              I&apos;m a B.Tech Robotics student building AI products end to end. My main project, Niramaya AI, turns scattered medical reports into searchable records using a FastAPI backend, a queued document pipeline and Qdrant retrieval.
             </p>
             <p>
-              My interests lie in AI engineering, retrieval-augmented generation, agentic systems, backend architecture,
-              and the principles required to turn AI research into useful products.
+              I care most about the parts that decide whether an AI system can be trusted: retrieval quality, failure handling, and data isolation.
             </p>
           </div>
 
           <div className="graph-block" aria-label="System graph illustration">
-            <svg viewBox="0 0 300 160" role="img" aria-label="Connected system graph">
+            <svg className="about-network-graph" viewBox="20 30 260 108" role="img" aria-label="Diagram of data flowing through a retrieval network">
               <path d="M30 70 L95 40 L160 80 L220 48 L270 88" />
               <path d="M95 40 L95 110 L160 80 L220 128 L270 88" />
-              <path d="M30 70 L95 110 L160 80 L220 128" />
+              <path className="graph-query-path" d="M30 70 L95 110 L160 80 L220 128" />
+              <path className="graph-query-pulse" d="M30 70 L95 110 L160 80 L220 128" />
               <g>
                 <circle cx="30" cy="70" r="5" />
                 <circle cx="95" cy="40" r="5" />
@@ -129,8 +147,8 @@ export default function AiPortfolio() {
               </g>
             </svg>
             <div className="graph-note">
-              I enjoy understanding systems deeply — from data processing and retrieval pipelines to APIs,
-              infrastructure, and user experience.
+              <div className="graph-caption">Documents → chunks → retrieval → answers with sources</div>
+              <a className="graph-case-link" href="/work/niramaya-ai#architecture">See how Niramaya works →</a>
               <div className="graph-italic">Reliable over impressive.</div>
             </div>
           </div>
@@ -188,7 +206,10 @@ export default function AiPortfolio() {
         <div className="section-kicker kicker-light">05 / ENGINEERING PHILOSOPHY</div>
         <div className="philosophy-inner">
           <div className="philosophy-copy-block">
-            <h2>Make the invisible <span className="serif-italic light">understandable.</span></h2>
+            <h2>
+              How I decide, not just what I use.
+              <span className="serif-italic light philosophy-subtitle">Make the invisible understandable.</span>
+            </h2>
             <p>
               Good engineering is not just the thing that runs. It is the thing another person can reason about six months later.
             </p>
@@ -196,16 +217,37 @@ export default function AiPortfolio() {
 
           <div className="principles-list">
             {[
-              'Understand the problem before selecting technology.',
-              'Design systems around reliability and maintainability.',
-              'Prefer measurable quality over assumptions.',
-              'Treat security and privacy as core architecture concerns.',
-              'Build for real-world constraints, not just demos.',
-              'Keep learning through implementation and experimentation.',
-            ].map((item, index) => (
-              <div className="principle-row" key={item}>
+              {
+                principle: 'Design the failure path first.',
+                proof: "When OCR fails or retrieval finds nothing, the system says it doesn't know instead of guessing.",
+              },
+              {
+                principle: "Say what is implemented, and what isn't.",
+                proof: 'Every capability is labelled implemented, optional, or planned.',
+              },
+              {
+                principle: 'Measure retrieval before tuning prompts.',
+                proof: 'Golden question set, recall@k, one variable changed at a time.',
+              },
+              {
+                principle: 'No source, no answer.',
+                proof: 'Every claim traces back to a retrieved chunk.',
+              },
+              {
+                principle: 'Isolate data by default.',
+                proof: 'Scoping per user at the storage and retrieval layers, not just in the UI.',
+              },
+              {
+                principle: 'Make cost and latency visible.',
+                proof: 'Latency tracked per pipeline stage, with quality-versus-cost trade-offs stated.',
+              },
+            ].map(({ principle, proof }, index) => (
+              <div className="principle-row" key={principle}>
                 <span>{String(index + 1).padStart(2, '0')}</span>
-                <p>{item}</p>
+                <div>
+                  <p>{principle}</p>
+                  <small>{proof}</small>
+                </div>
               </div>
             ))}
           </div>
@@ -237,16 +279,31 @@ export default function AiPortfolio() {
         <div className="section-kicker">07 / SAY HELLO</div>
         <div className="contact-inner">
           <div className="contact-copy">
-            <h2>Have an <span className="serif-italic">interesting</span><br />problem to solve?</h2>
+            <h2>Have an interesting <em className="serif-italic">problem to solve?</em></h2>
             <p>Seeking AI Engineering and AI Backend Engineering internship opportunities for 2027. I&apos;m interested in building useful, reliable intelligent products.</p>
           </div>
 
           <div className="contact-links-panel">
-            <a href={`mailto:${PROFILE.email}`}>mr.deepesh.singh00@gmail.com <span>↗</span></a>
+            <a className="contact-email-link" href={`mailto:${PROFILE.email}`}>
+              <span className="contact-link-type">01 / DIRECT LINE</span>
+              <span className="contact-link-main">
+                {PROFILE.email}
+                <span className="contact-link-arrow" aria-hidden="true">↗</span>
+              </span>
+            </a>
+            <a className="resume-download" href="/resume.pdf" download>
+              Download resume (PDF)
+              <span aria-hidden="true">↓</span>
+            </a>
             <div className="small-links">
-              <a href={PROFILE.github} target="_blank" rel="noreferrer">GitHub</a>
-              <a href={PROFILE.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
-              {PROFILE.resume && <a href={PROFILE.resume} target="_blank" rel="noreferrer">Resume</a>}
+              <a className="contact-social-link" href="https://github.com/singhdeepesh20" target="_blank" rel="noopener noreferrer">
+                <span className="contact-link-type">02 / CODE</span>
+                <span className="contact-link-main"><FaGithub aria-hidden="true" />GitHub <span className="contact-link-arrow" aria-hidden="true">↗</span></span>
+              </a>
+              <a className="contact-social-link" href="https://www.linkedin.com/in/contactdeepesh" target="_blank" rel="noopener noreferrer">
+                <span className="contact-link-type">03 / NETWORK</span>
+                <span className="contact-link-main"><FaLinkedinIn aria-hidden="true" />LinkedIn <span className="contact-link-arrow" aria-hidden="true">↗</span></span>
+              </a>
             </div>
             <div className="mail-note">Opens your email client — no message is stored here.</div>
           </div>
@@ -258,11 +315,10 @@ export default function AiPortfolio() {
         <span>Built with curiosity &amp; careful boundaries</span>
         <nav aria-label="Footer navigation">
           <a href="#work">Projects</a>
-          <a href="#journal">Journal</a>
           <a href="#contact">Contact</a>
-          <a href={PROFILE.github} target="_blank" rel="noreferrer">GitHub</a>
-          <a href={PROFILE.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
-          {PROFILE.resume && <a href={PROFILE.resume} target="_blank" rel="noreferrer">Resume</a>}
+          <a href="https://github.com/singhdeepesh20" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/contactdeepesh" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="/resume.pdf" download>Resume</a>
           <a href="#top">Back to top ↑</a>
         </nav>
       </footer>

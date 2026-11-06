@@ -1,6 +1,6 @@
 # Deepesh Singh — AI Product Engineering Portfolio
 
-A Next.js portfolio for a B.Tech Robotics student building toward AI Product Engineering. It includes a conversational homepage, an original SVG avatar, a lightweight ambient background, an interactive engineering capability map, responsive layouts, and reduced-motion support.
+A Next.js portfolio for a B.Tech Robotics student building toward AI Product Engineering. It includes a conversational homepage, an illustrated avatar, a lightweight ambient background, an interactive engineering capability map, responsive layouts, and reduced-motion support.
 
 ## Run locally
 
@@ -17,7 +17,7 @@ The homepage presents Niramaya AI as its flagship project. The technical case st
 
 ## Profile configuration
 
-Contact details are configured in `src/lib/profile.js`. Optional links such as the resume are omitted until a corresponding file or URL is configured.
+Contact details are configured in `src/lib/profile.js`. `public/resume.pdf` is a placeholder for the resume download; replace it with the real resume before publishing.
 
 Set `NEXT_PUBLIC_SITE_URL` to the deployed canonical origin before publishing so metadata, `robots.txt`, and the sitemap use the correct domain. Analytics are disabled by default. Enable them with `NEXT_PUBLIC_ANALYTICS_ENABLED=true` only when the Supabase URL and service key are configured on the server.
 
